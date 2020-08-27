@@ -1,5 +1,5 @@
 const test = require('ava');
-const {statement,statementWithHTML} = require('../src/statement');
+const {statement, statementWithHTML} = require('../src/statement');
 
 test('statement one, BigCo Buy 30 hamlet', t => {
     //given
@@ -146,7 +146,7 @@ test('statement six, SmallCo Buy 29 hamlet, 19 as-like, 29 othello', t => {
     //then
     t.is(result, expectResult);
 });
-test('statement seven,UnNormalCo Buy not exist Tickets',t =>{
+test('statement seven,UnNormalCo Buy not exist Tickets', t => {
     //given
     const invoice = {
         'customer': 'SmallCo',
@@ -159,14 +159,14 @@ test('statement seven,UnNormalCo Buy not exist Tickets',t =>{
     };
     //when
     //then
-    try{
+    try {
         statement(invoice, plays);
-    }catch (e){
-        t.is(e.message,"unknown type: no-tragedy")
+    } catch (e) {
+        t.is(e.message, "unknown type: no-tragedy")
     }
 
 });
-test('statement eight,UnNormalCo Buy none Tickets',t =>{
+test('statement eight,UnNormalCo Buy none Tickets', t => {
     //given
     const invoice = {
         'customer': 'SmallCo',
@@ -181,7 +181,7 @@ test('statement eight,UnNormalCo Buy none Tickets',t =>{
     t.is(result, expectResult);
 
 })
-test('statement Nine,BigCo Buy 55 hamlet, 35 as-like, 40 othello By HTML',t =>{
+test('statement Nine,BigCo Buy 55 hamlet, 35 as-like, 40 othello By HTML', t => {
     //given
     const invoice = {
         'customer': 'BigCo',
