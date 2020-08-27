@@ -27,10 +27,10 @@ function calculateVolumeCredits(volumeCredits, perf, play) {
   return volumeCredits;
 }
 
-function calculateResult(invoice, plays, result, format) {
+function calculateResult(performances, plays, result, format) {
   let totalAmount = 0;
   let volumeCredits = 0;
-  for (let perf of invoice.performances) {
+  for (let perf of performances) {
     const play = plays[perf.playID];
     let thisAmount = calculateAmount(play, perf);
     // add volume credits
@@ -45,18 +45,17 @@ function calculateResult(invoice, plays, result, format) {
 }
 
 function genDollarFormat() {
-  const format = new Intl.NumberFormat('en-US', {
+  return new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
     minimumFractionDigits: 2,
   }).format;
-  return format;
 }
 
 function statement (invoice, plays) {
   let result = `Statement for ${invoice.customer}\n`;
   const format = genDollarFormat();
-  return calculateResult(invoice, plays, result, format);
+  return calculateResult(invoice.performances, plays, result, format);
 }
 
 module.exports = {
