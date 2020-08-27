@@ -37,24 +37,6 @@ function calculateVolumeCredits(volumeCredits, perf, play) {
   return volumeCredits;
 }
 
-function calculateResult(performances, plays, result) {
-  let totalAmount = 0;
-  let volumeCredits = 0;
-  const format = genDollarFormat();
-  for (let perf of performances) {
-    const play = plays[perf.playID];
-    let thisAmount = calculateAmount(play, perf);
-    // add volume credits
-    volumeCredits = calculateVolumeCredits(volumeCredits, perf, play);
-    //print line for this order
-    result += ` ${play.name}: ${format(thisAmount / 100)} (${perf.audience} seats)\n`;
-    totalAmount += thisAmount;
-  }
-  result += `Amount owed is ${format(totalAmount / 100)}\n`;
-  result += `You earned ${volumeCredits} credits \n`;
-  return result;
-}
-
 function genDollarFormat() {
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
@@ -63,9 +45,45 @@ function genDollarFormat() {
   }).format;
 }
 
+function calculateResult(performances, plays) {
+  let totalAmount = 0;
+  let volumeCredits = 0;
+  let tickets = [];
+  for (let perf of performances) {
+    const play = plays[perf.playID];
+    let thisAmount = calculateAmount(play, perf);
+    let ticket = {
+      "name": play.name,
+      "amount":thisAmount / 100,
+      "audience":perf.audience
+    }
+    tickets.push(ticket);
+    // add volume credits
+    volumeCredits = calculateVolumeCredits(volumeCredits, perf, play);
+    //print line for this order
+    totalAmount += thisAmount;
+  }
+  return {
+    "tickets": tickets,
+    "totalAmount": totalAmount,
+    "volumeCredits": volumeCredits
+  };
+}
+
+function genStringResult(customer,ticketsResult){
+  const format = genDollarFormat();
+  let result = `Statement for ${customer}\n`;
+  for(let ticket of ticketsResult.tickets){
+    result += ` ${ticket.name}: ${format(ticket.amount)} (${ticket.audience} seats)\n`;
+  }
+  result += `Amount owed is ${format(ticketsResult.totalAmount / 100)}\n`;
+  result += `You earned ${ticketsResult.volumeCredits} credits \n`;
+  return result;
+}
+
 function statement (invoice, plays) {
-  let result = `Statement for ${invoice.customer}\n`;
-  return calculateResult(invoice.performances, plays, result);
+  let TicketsResult = calculateResult(invoice.performances, plays);
+  return genStringResult(invoice.customer,TicketsResult)
 }
 
 module.exports = {
