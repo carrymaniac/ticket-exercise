@@ -1,28 +1,28 @@
-function calculateTragedyAmount(thisAmount, perf) {
+function calculateTragedyAmount(thisAmount, performance) {
   thisAmount = 40000;
-  if (perf.audience > 30) {
-    thisAmount += 1000 * (perf.audience - 30);
+  if (performance.audience > 30) {
+    thisAmount += 1000 * (performance.audience - 30);
   }
   return thisAmount;
 }
 
-function calculateComedyAmount(thisAmount, perf) {
+function calculateComedyAmount(thisAmount, performance) {
   thisAmount = 30000;
-  if (perf.audience > 20) {
-    thisAmount += 10000 + 500 * (perf.audience - 20);
+  if (performance.audience > 20) {
+    thisAmount += 10000 + 500 * (performance.audience - 20);
   }
-  thisAmount += 300 * perf.audience;
+  thisAmount += 300 * performance.audience;
   return thisAmount;
 }
 
-function calculateAmount(play, perf) {
+function calculateAmount(play, performance) {
   let thisAmount = 0;
   switch (play.type) {
     case 'tragedy':
-      thisAmount = calculateTragedyAmount(thisAmount, perf);
+      thisAmount = calculateTragedyAmount(thisAmount, performance);
       break;
     case 'comedy':
-      thisAmount = calculateComedyAmount(thisAmount, perf);
+      thisAmount = calculateComedyAmount(thisAmount, performance);
       break;
       default:
         throw new Error(`unknown type: ${play.type}`);
@@ -30,10 +30,10 @@ function calculateAmount(play, perf) {
   return thisAmount;
 }
 
-function calculateVolumeCredits(volumeCredits, perf, play) {
-  volumeCredits += Math.max(perf.audience - 30, 0);
+function calculateVolumeCredits(volumeCredits, performance, play) {
+  volumeCredits += Math.max(performance.audience - 30, 0);
   // add extra credit for every ten comedy attendees
-  if ('comedy' === play.type) volumeCredits += Math.floor(perf.audience / 5);
+  if ('comedy' === play.type) volumeCredits += Math.floor(performance.audience / 5);
   return volumeCredits;
 }
 
@@ -49,17 +49,17 @@ function calculateResult(performances, plays) {
   let totalAmount = 0;
   let volumeCredits = 0;
   let tickets = [];
-  for (let perf of performances) {
-    const play = plays[perf.playID];
-    let thisAmount = calculateAmount(play, perf);
+  for (let performance of performances) {
+    const play = plays[performance.playID];
+    let thisAmount = calculateAmount(play, performance);
     let ticket = {
       "name": play.name,
       "amount":thisAmount / 100,
-      "audience":perf.audience
+      "audience":performance.audience
     }
     tickets.push(ticket);
     // add volume credits
-    volumeCredits = calculateVolumeCredits(volumeCredits, perf, play);
+    volumeCredits = calculateVolumeCredits(volumeCredits, performance, play);
     //print line for this order
     totalAmount += thisAmount;
   }
@@ -80,12 +80,29 @@ function genStringResult(customer,ticketsResult){
   result += `You earned ${ticketsResult.volumeCredits} credits \n`;
   return result;
 }
-
+function genHTMLResult(customer,ticketsResult){
+  const format = genDollarFormat();
+  let result = `<h1>Statement for ${customer}</h1>\n`;
+  result += '<table>\n';
+  result += '<tr><th>play</th><th>seats</th><th>cost</th></tr>';
+  for(let ticket of ticketsResult.tickets){
+    result += ` <tr><td>${ticket.name}</td><td>${ticket.audience}</td><td>${format(ticket.amount)}</td></tr>\n`;
+  }
+  result += '</table>\n';
+  result += `<p>Amount owed is <em>${format(ticketsResult.totalAmount / 100)}</em></p>\n`;
+  result += `<p>You earned <em>${ticketsResult.volumeCredits}</em> credits</p>\n`;
+  return result;
+}
 function statement (invoice, plays) {
   let TicketsResult = calculateResult(invoice.performances, plays);
   return genStringResult(invoice.customer,TicketsResult)
 }
+function statementWithHTML(invoice, plays){
+  let TicketsResult = calculateResult(invoice.performances, plays);
+  return genHTMLResult(invoice.customer,TicketsResult)
+}
 
 module.exports = {
   statement,
+  statementWithHTML
 };
