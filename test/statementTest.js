@@ -181,7 +181,7 @@ test('statement eight,UnNormalCo Buy none Tickets', t => {
     t.is(result, expectResult);
 
 })
-test('statement Nine,BigCo Buy 55 hamlet, 35 as-like, 40 othello By HTML', t => {
+test('statement nine,BigCo Buy 55 hamlet, 35 as-like, 40 othello By HTML', t => {
     //given
     const invoice = {
         'customer': 'BigCo',
@@ -214,6 +214,40 @@ test('statement Nine,BigCo Buy 55 hamlet, 35 as-like, 40 othello By HTML', t => 
     //then
     t.is(result, expectResult);
 })
+test('statement ten,SmallCo Buy 29 hamlet, 19 as-like, 29 othello By HTML', t => {
+    //given
+    const invoice = {
+        'customer': 'SmallCo',
+        'performances': [
+            {
+                'playID': 'hamlet',
+                'audience': 29,
+            },
+            {
+                'playID': 'as-like',
+                'audience': 19,
+            },
+            {
+                'playID': 'othello',
+                'audience': 29,
+            },
+        ],
+    };
+    //when
+    const result = statementWithHTML(invoice, plays);
+    const expectResult = '<h1>Statement for SmallCo</h1>\n' +
+        '<table>\n' +
+        '<tr><th>play</th><th>seats</th><th>cost</th></tr>' +
+        ' <tr><td>Hamlet</td><td>29</td><td>$400.00</td></tr>\n' +
+        ' <tr><td>As You Like It</td><td>19</td><td>$357.00</td></tr>\n' +
+        ' <tr><td>Othello</td><td>29</td><td>$400.00</td></tr>\n' +
+        '</table>\n' +
+        '<p>Amount owed is <em>$1,157.00</em></p>\n' +
+        '<p>You earned <em>3</em> credits</p>\n';
+    //then
+    t.is(result, expectResult);
+})
+
 const plays = {
     'hamlet': {
         'name': 'Hamlet',

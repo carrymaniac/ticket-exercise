@@ -1,43 +1,6 @@
-function calculateTragedyAmount(thisAmount, performance) {
-    thisAmount = 40000;
-    if (performance.audience > 30) {
-        thisAmount += 1000 * (performance.audience - 30);
-    }
-    return thisAmount;
-}
+const {calculateResult} = require('./calculateInvoice')
 
-function calculateComedyAmount(thisAmount, performance) {
-    thisAmount = 30000;
-    if (performance.audience > 20) {
-        thisAmount += 10000 + 500 * (performance.audience - 20);
-    }
-    thisAmount += 300 * performance.audience;
-    return thisAmount;
-}
-
-function calculateAmount(play, performance) {
-    let thisAmount = 0;
-    switch (play.type) {
-        case 'tragedy':
-            thisAmount = calculateTragedyAmount(thisAmount, performance);
-            break;
-        case 'comedy':
-            thisAmount = calculateComedyAmount(thisAmount, performance);
-            break;
-        default:
-            throw new Error(`unknown type: ${play.type}`);
-    }
-    return thisAmount;
-}
-
-function calculateVolumeCredits(volumeCredits, performance, play) {
-    volumeCredits += Math.max(performance.audience - 30, 0);
-    // add extra credit for every ten comedy attendees
-    if ('comedy' === play.type) volumeCredits += Math.floor(performance.audience / 5);
-    return volumeCredits;
-}
-
-function genDollarFormat() {
+const genDollarFormat = () => {
     return new Intl.NumberFormat('en-US', {
         style: 'currency',
         currency: 'USD',
@@ -45,32 +8,7 @@ function genDollarFormat() {
     }).format;
 }
 
-function calculateResult(performances, plays) {
-    let totalAmount = 0;
-    let volumeCredits = 0;
-    let tickets = [];
-    for (let performance of performances) {
-        const play = plays[performance.playID];
-        let thisAmount = calculateAmount(play, performance);
-        let ticket = {
-            "name": play.name,
-            "amount": thisAmount / 100,
-            "audience": performance.audience
-        }
-        tickets.push(ticket);
-        // add volume credits
-        volumeCredits = calculateVolumeCredits(volumeCredits, performance, play);
-        //print line for this order
-        totalAmount += thisAmount;
-    }
-    return {
-        "tickets": tickets,
-        "totalAmount": totalAmount,
-        "volumeCredits": volumeCredits
-    };
-}
-
-function genStringResult(customer, ticketsResult) {
+const genStringResult = (customer, ticketsResult) => {
     const format = genDollarFormat();
     let result = `Statement for ${customer}\n`;
     for (let ticket of ticketsResult.tickets) {
@@ -81,7 +19,7 @@ function genStringResult(customer, ticketsResult) {
     return result;
 }
 
-function genHTMLResult(customer, ticketsResult) {
+const genHTMLResult = (customer, ticketsResult) => {
     const format = genDollarFormat();
     let result = `<h1>Statement for ${customer}</h1>\n`;
     result += '<table>\n';
@@ -95,14 +33,12 @@ function genHTMLResult(customer, ticketsResult) {
     return result;
 }
 
-function statement(invoice, plays) {
-    let TicketsResult = calculateResult(invoice.performances, plays);
-    return genStringResult(invoice.customer, TicketsResult)
+const statement = (invoice, plays) => {
+    return genStringResult(invoice.customer, calculateResult(invoice.performances, plays))
 }
 
-function statementWithHTML(invoice, plays) {
-    let TicketsResult = calculateResult(invoice.performances, plays);
-    return genHTMLResult(invoice.customer, TicketsResult)
+const statementWithHTML = (invoice, plays) => {
+    return genHTMLResult(invoice.customer, calculateResult(invoice.performances, plays))
 }
 
 module.exports = {
