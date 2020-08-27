@@ -27,15 +27,9 @@ function calculateVolumeCredits(volumeCredits, perf, play) {
   return volumeCredits;
 }
 
-function statement (invoice, plays) {
+function calculateResult(invoice, plays, result, format) {
   let totalAmount = 0;
   let volumeCredits = 0;
-  let result = `Statement for ${invoice.customer}\n`;
-  const format = new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 2,
-  }).format;
   for (let perf of invoice.performances) {
     const play = plays[perf.playID];
     let thisAmount = calculateAmount(play, perf);
@@ -48,6 +42,21 @@ function statement (invoice, plays) {
   result += `Amount owed is ${format(totalAmount / 100)}\n`;
   result += `You earned ${volumeCredits} credits \n`;
   return result;
+}
+
+function genDollarFormat() {
+  const format = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 2,
+  }).format;
+  return format;
+}
+
+function statement (invoice, plays) {
+  let result = `Statement for ${invoice.customer}\n`;
+  const format = genDollarFormat();
+  return calculateResult(invoice, plays, result, format);
 }
 
 module.exports = {
