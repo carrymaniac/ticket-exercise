@@ -166,7 +166,6 @@ test('statement seven,UnNormalCo Buy not exist Tickets',t =>{
     }
 
 });
-
 test('statement eight,UnNormalCo Buy none Tickets',t =>{
     //given
     const invoice = {
